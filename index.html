@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignación por Maximizacion - Proyecto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 10px;
+            text-align: center;
+        }
+        table {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #steps {
+            margin-top: 20px;
+        }
+        .caratula {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .caratula h1, .caratula h3 {
+            margin: 5px;
+        }
+        .logo {
+            width: 150px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Carátula del Proyecto -->
+<div class="caratula">
+    <img src="logo.png" alt="Logo del Instituto" class="logo">
+    <h1>Proyecto: Asignación por Maximizacion</h1>
+    <h3>Integrantes: Joseph isaac asencio ortiz , Josué Estuardo Ola Ordoñez  ,esvin Giovanni González de la Cruz
+    </h3>
+    
+</div>
+
+<h1>Asignación por Maximizacion - Explicación Paso a Paso</h1>
+
+<!-- Descripción del procedimiento -->
+<p>
+    Este sistema utiliza el <b>método de asignación por maximizacion</b> para asignar empleados a tareas de manera que se maximicen las ganancias.
+    El procedimiento consta de los siguientes pasos:
+</p>
+<ul>
+    <li><b>Paso 1:</b> Ingresar las ganancias esperadas en la tabla para cada combinación de empleado y tarea.</li>
+    <li><b>Paso 2:</b> El sistema identificará el valor máximo de las ganancias y lo usará para transformar la matriz original en una matriz de costos.</li>
+    <li><b>Paso 3:</b> Luego, el sistema calculará las asignaciones óptimas basándose en los costos mínimos de la matriz transformada.</li>
+    <li><b>Paso 4:</b> Finalmente, se mostrarán las asignaciones óptimas, explicando cómo se ha llegado a ellas.</li>
+</ul>
+
+<h3>Ingrese las ganancias esperadas:</h3>
+<table id="matrix">
+    <tr>
+        <th></th>
+        <th>Tarea 1</th>
+        <th>Tarea 2</th>
+        <th>Tarea 3</th>
+    </tr>
+    <tr>
+        <th>Empleado 1</th>
+        <td><input type="number" id="e1t1" value="8"></td>
+        <td><input type="number" id="e1t2" value="7"></td>
+        <td><input type="number" id="e1t3" value="6"></td>
+    </tr>
+    <tr>
+        <th>Empleado 2</th>
+        <td><input type="number" id="e2t1" value="6"></td>
+        <td><input type="number" id="e2t2" value="9"></td>
+        <td><input type="number" id="e2t3" value="5"></td>
+    </tr>
+    <tr>
+        <th>Empleado 3</th>
+        <td><input type="number" id="e3t1" value="7"></td>
+        <td><input type="number" id="e3t2" value="8"></td>
+        <td><input type="number" id="e3t3" value="6"></td>
+    </tr>
+</table>
+
+<button onclick="maximization()">Realizar Asignación</button>
+
+<h3>Explicación del Proceso:</h3>
+<div id="steps"></div>
+
+<h3>Resultado Final:</h3>
+<p id="result"></p>
+
+<script>
+    function maximization() {
+        // Limpiar explicaciones anteriores
+        document.getElementById('steps').innerHTML = "";
+        document.getElementById('result').innerText = "";
+
+        // Obtener valores de la matriz
+        let matrix = [
+            [parseInt(document.getElementById('e1t1').value), parseInt(document.getElementById('e1t2').value), parseInt(document.getElementById('e1t3').value)],
+            [parseInt(document.getElementById('e2t1').value), parseInt(document.getElementById('e2t2').value), parseInt(document.getElementById('e2t3').value)],
+            [parseInt(document.getElementById('e3t1').value), parseInt(document.getElementById('e3t2').value), parseInt(document.getElementById('e3t3').value)]
+        ];
+
+        // Paso 1: Mostrar matriz original
+        let step1 = `<h4>Paso 1: Matriz de Ganancias Original</h4>`;
+        step1 += `<p>En este paso, tenemos la matriz de ganancias donde cada celda representa las ganancias al asignar un empleado a una tarea específica.</p>`;
+        step1 += generateTableHTML(matrix);
+        document.getElementById('steps').innerHTML += step1;
+
+        // Paso 2: Encontrar el valor máximo en la matriz
+        let maxVal = Math.max(...matrix.flat());
+        let step2 = `<h4>Paso 2: Valor Máximo encontrado en la matriz = ${maxVal}</h4>`;
+        step2 += `<p>Este valor es necesario para convertir las ganancias en costos. Restamos cada valor de la matriz del valor máximo para crear una matriz de costos.</p>`;
+        document.getElementById('steps').innerHTML += step2;
+
+        // Paso 3: Crear matriz de costos restando el valor máximo
+        let costMatrix = matrix.map(row => row.map(value => maxVal - value));
+        let step3 = `<h4>Paso 3: Matriz de Costos (Valor Máximo - Ganancias)</h4>`;
+        step3 += `<p>Hemos restado el valor máximo (${maxVal}) de cada valor de la matriz de ganancias. La nueva matriz es la matriz de costos, en la que queremos minimizar los valores para encontrar las asignaciones óptimas.</p>`;
+        step3 += generateTableHTML(costMatrix);
+        document.getElementById('steps').innerHTML += step3;
+
+        // Paso 4: Aplicar una asignación simple (algoritmo de minimización)
+        let assignments = [];
+        let step4 = `<h4>Paso 4: Asignaciones de acuerdo con los costos mínimos</h4>`;
+        step4 += `<p>A continuación, asignamos cada empleado a la tarea que tiene el menor costo en la matriz de costos. Esta es la tarea que maximiza las ganancias, ya que el costo mínimo significa la ganancia máxima en el contexto original.</p>`;
+        for (let i = 0; i < costMatrix.length; i++) {
+            let minIndex = costMatrix[i].indexOf(Math.min(...costMatrix[i]));
+            assignments.push(`Empleado ${i + 1} asignado a Tarea ${minIndex + 1}`);
+            step4 += `<p>Empleado ${i + 1} se asigna a la Tarea ${minIndex + 1}, ya que tiene el costo mínimo de ${costMatrix[i][minIndex]} en su fila.</p>`;
+        }
+        document.getElementById('steps').innerHTML += step4;
+
+        // Paso 5: Mostrar resultado final de las asignaciones
+        let step5 = `<h4>Paso 5: Resultado Final</h4>`;
+        step5 += `<p>Las asignaciones óptimas basadas en el método de maximización son:</p>`;
+        document.getElementById('steps').innerHTML += step5;
+        document.getElementById('result').innerText = assignments.join(", ");
+    }
+
+    // Función auxiliar para generar tablas HTML
+    function generateTableHTML(matrix) {
+        let html = '<table>';
+        for (let row of matrix) {
+            html += '<tr>';
+            for (let cell of row) {
+                html += `<td>${cell}</td>`;
+            }
+            html += '</tr>';
+        }
+        html += '</table>';
+        return html;
+    }
+</script>
+
+</body>
+</html>
